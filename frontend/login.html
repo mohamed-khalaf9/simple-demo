@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .login-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .input-group {
+            margin-bottom: 15px;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-size: 16px;
+        }
+        .error-message {
+            color: red;
+            text-align: center;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-container">
+        <h2>Login</h2>
+        <form id="loginForm">
+            <div class="input-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" required>
+            </div>
+            <div class="input-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" required>
+            </div>
+            <button type="submit" class="button">Login</button>
+        </form>
+        <p class="error-message" id="errorMessage"></p>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent the form from submitting the default way
+
+            // Collect the form data
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            // Create the request data object
+            const data = { email, password };
+
+            // Send the POST request to the server
+            fetch('http://localhost/api/backend/users', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data) // Sending the form data to the server as JSON
+            })
+            .then(response => {
+                if (response.ok) { // If the response status code is 200-299 (success)
+                    return response.json(); // Parse the JSON response from the server
+                } else {
+                    throw new Error('Login failed. Please check your credentials.');
+                }
+            })
+            .then(data => {
+                // Assuming the backend sends a confirmation message and token in the response
+                localStorage.setItem('token', data.token); // Store the token in localStorage
+
+                // Redirect to the h2.html page after a successful login
+                window.location.href = 'h2.html';
+            })
+            .catch(error => {
+                // If there's an error (e.g., status is not OK or a network error)
+                document.getElementById('errorMessage').textContent = error.message; // Display the error message
+            });
+        });
+    </script>
+
+</body>
+</html>

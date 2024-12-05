@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Management</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .container {
+            width: 80%;
+            margin: 0 auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: white;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        input[type="text"], input[type="number"] {
+            padding: 8px;
+            font-size: 14px;
+            margin: 5px;
+            width: 200px;
+            border: 1px solid #ddd;
+        }
+        .form-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .form-container h2 {
+            text-align: center;
+        }
+        .form-container label {
+            font-size: 14px;
+            margin-bottom: 5px;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Product Management</h1>
+
+        <!-- Button to get all products -->
+        <button onclick="getProducts()">Get Products</button>
+
+        <!-- Logout Button -->
+        <button onclick="logout()">Logout</button>
+
+        <!-- Display the product list -->
+        <table id="productTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Products will be displayed here -->
+            </tbody>
+        </table>
+
+        <!-- Create Product Form -->
+        <div class="form-container">
+            <h2>Create Product</h2>
+            <label for="productName">Name:</label>
+            <input type="text" id="createProductName" placeholder="Product Name">
+            <br>
+            <label for="productPrice">Price:</label>
+            <input type="number" id="createProductPrice" placeholder="Product Price">
+            <br>
+            <button onclick="createProduct()">Create Product</button>
+        </div>
+
+        <br><br>
+
+        <!-- Update Product Form -->
+        <div class="form-container">
+            <h2>Update Product</h2>
+            <label for="productId">ID:</label>
+            <input type="text" id="updateProductId" placeholder="Product ID">
+            <br>
+            <label for="productName">Name:</label>
+            <input type="text" id="updateProductName" placeholder="Product Name">
+            <br>
+            <label for="productPrice">Price:</label>
+            <input type="number" id="updateProductPrice" placeholder="Product Price">
+            <br>
+            <button onclick="updateProduct()">Update Product</button>
+        </div>
+
+        <br><br>
+
+        <!-- Delete Product Form -->
+        <div class="form-container">
+            <h2>Delete Product</h2>
+            <button onclick="deleteProduct()">Delete Product</button>
+        </div>
+    </div>
+
+    <script>
+        const token = localStorage.getItem('token');  // Get the token from localStorage
+        const baseUrl = "http://localhost/api/backend/products";  // Adjust URL for your API
+
+        // Function to fetch and display products
+        function getProducts() {
+            fetch(baseUrl, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                const tableBody = document.querySelector('#productTable tbody');
+                tableBody.innerHTML = '';  // Clear the table before inserting new data
+                data.forEach(product => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${product.id}</td>
+                        <td>${product.name}</td>
+                        <td>${product.price}</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        // Function to create a new product
+        function createProduct() {
+            const name = document.getElementById('createProductName').value;
+            const price = document.getElementById('createProductPrice').value;
+
+            if (!name || !price) {
+                alert('Please provide both name and price for the product.');
+                return;
+            }
+
+            const data = { name, price };
+
+            fetch(baseUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert('Product created successfully!');
+                getProducts();  // Refresh the product list
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        // Function to update an existing product
+        function updateProduct() {
+            const id = document.getElementById('updateProductId').value;
+            const name = document.getElementById('updateProductName').value;
+            const price = document.getElementById('updateProductPrice').value;
+
+            if (!id || !name || !price) {
+                alert('Please provide all fields (ID, Name, and Price).');
+                return;
+            }
+
+            const data = { id, name, price };
+
+            fetch(`${baseUrl}/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert('Product updated successfully!');
+                getProducts();  // Refresh the product list
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        // Function to delete a product by ID
+        function deleteProduct() {
+            
+
+            fetch(baseUrl, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert('Product deleted successfully!');
+                getProducts();  // Refresh the product list
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        // Logout function that disables all page elements and redirects to login page
+        function logout() {
+            // Disable all form inputs, buttons, and links
+            const elements = document.querySelectorAll('input, button');
+            elements.forEach(element => {
+                element.disabled = true;
+            });
+
+            // Clear the token from local storage
+            localStorage.removeItem('token');
+
+            // Redirect to the login page (adjust the URL accordingly)
+            window.location.href = 'login.html';
+        }
+
+        // Initialize the product list when the page loads
+        window.onload = getProducts;
+    </script>
+</body>
+</html>
