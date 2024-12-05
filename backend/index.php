@@ -26,14 +26,14 @@ include_once 'router.php';
 $requestUri = $_SERVER['REQUEST_URI'];
 
 // Ensure the URL starts with `/api/backend/`
-if (strpos($requestUri, '/api/backend/') !== 0) {
+if (strpos($requestUri, '/simple-demo/backend/') !== 0) {
     http_response_code(404); // Return 404 Not Found for invalid URLs
     echo json_encode(['error' => 'Invalid API URL format']);
     exit;
 }
 
 // Process the URL to extract `resource` and `id`
-$requestUri = str_replace('/api/backend', '', $requestUri);
+$requestUri = str_replace('/simple-demo/backend', '', $requestUri);
 $requestUri = rtrim($requestUri, '/');
 $uriParts = explode('/', $requestUri);
 
